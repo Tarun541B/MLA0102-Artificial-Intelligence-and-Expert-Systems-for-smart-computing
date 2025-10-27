@@ -1,0 +1,72 @@
+from collections import deque
+
+# Grid representation: 0 = clean, 1 = dirty
+grid = [
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 0, 0]
+]
+
+vacuum_pos = (0, 0)  # Starting position (row, col)
+
+def print_grid(g):
+    for row in g:
+        print(row)
+    print()
+
+def neighbors(r, c):
+    moves = [(1,0), (-1,0), (0,1), (0,-1)]
+    for dr, dc in moves:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]):
+            yield nr, nc
+
+def bfs(start, goal):
+    queue = deque([(start, [])])
+    visited = set([start])
+    while queue:
+        (r, c), path = queue.popleft()
+        if (r, c) == goal:
+            return path + [(r, c)]
+        for nr, nc in neighbors(r, c):
+            if (nr, nc) not in visited:
+                visited.add((nr, nc))
+                queue.append(((nr, nc), path + [(r, c)]))
+
+def find_dirty_cells(g):
+    dirt = []
+    for i in range(len(g)):
+        for j in range(len(g[0])):
+            if g[i][j] == 1:
+                dirt.append((i, j))
+    return dirt
+
+print("Initial Grid:")
+print_grid(grid)
+
+total_steps = 0
+
+while True:
+    dirty = find_dirty_cells(grid)
+    if not dirty:
+        print("All cells are clean! ✅")
+        break
+    
+    # Choose the nearest dirty cell
+    target = min(dirty, key=lambda d: abs(d[0] - vacuum_pos[0]) + abs(d[1] - vacuum_pos[1]))
+
+    # BFS to get path to dirty cell
+    path = bfs(vacuum_pos, target)
+    
+    # Move along the path
+    for pos in path[1:]:
+        vacuum_pos = pos
+        total_steps += 1
+    
+    # Clean the dirty cell
+    r, c = target
+    grid[r][c] = 0
+    print(f"Cleaned at position {vacuum_pos}")
+    print_grid(grid)
+
+print("Total movements:", total_steps)
