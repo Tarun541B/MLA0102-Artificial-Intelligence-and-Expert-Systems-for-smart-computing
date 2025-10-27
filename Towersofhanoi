@@ -1,0 +1,22 @@
+import time
+import os
+def display(pegs):
+    os.system('cls' if os.name == 'nt' else 'clear')   
+    print("\nTOWERS OF HANOI\n")
+    for name, peg in pegs.items():
+        print(f"{name}: {peg}")
+    time.sleep(0.8)  
+def hanoi(n, source, auxiliary, target, pegs):
+    if n == 1:
+        pegs[target].append(pegs[source].pop())
+        display(pegs)
+        return
+    hanoi(n - 1, source, target, auxiliary, pegs)
+    pegs[target].append(pegs[source].pop())
+    display(pegs)
+    hanoi(n - 1, auxiliary, source, target, pegs)
+n = int(input("Enter number of disks: "))
+pegs = {'A': list(range(n, 0, -1)), 'B': [], 'C': []}
+display(pegs)
+hanoi(n, 'A', 'B', 'C', pegs)
+print("\n✅ Puzzle solved!")
